@@ -40,5 +40,11 @@ class DatabaseSeeder extends Seeder
             'user_id' => 2 ,
             'matricola' => '556026' ]
         );
+
+        $this->call([
+            ConfigSeeder::class,
+        ]);
+
+        
     }
 }

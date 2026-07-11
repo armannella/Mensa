@@ -44,6 +44,9 @@
                         @endforelse
                     </x-table>
                 </div>
+                <div>
+                    {{ $applications->links() }}
+                </div>
         </div>
     </div>
 

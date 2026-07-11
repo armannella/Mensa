@@ -1,8 +1,11 @@
-@props(['name', 'label', 'type' => 'text', 'value' => '', 'placeholder' => '' , 'id' => null])
+@props(['name', 'label'=> '', 'type' => 'text', 'value' => '', 'placeholder' => '' , 'id' => null])
 @php 
     $inputId = $id ?? $name; 
 @endphp
-<label for="{{ $inputId }}" class="form-label mt-3">{{ $label }} :</label>
+@if ($label)
+    <label for="{{ $inputId }}" class="form-label mt-3">{{ $label }} :</label>
+@endif
+
 <input 
     type="{{ $type }}" 
     name="{{ $name }}" 

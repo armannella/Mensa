@@ -199,3 +199,58 @@ tbody tr:hover {
     color: cyan;
 
 }
+
+
+.foodcard {
+    border-radius: 0;
+    background-color: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.5);
+    color : white ;
+    text-align: center;
+    padding: 10px;
+}
+
+.foodimage {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.foodimage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.foodname {
+    font-size: 40px;
+    font-weight: 400;
+    opacity: 0.9;
+    text-transform: capitalize;
+}
+
+.fooddetails {
+    font-size: 20px;
+    font-weight: 300;
+    opacity: 0.8;
+    text-transform: capitalize;
+}
+
+.foodcard.is-selected {
+    border: 2px solid #0bea4a;
+    background-color: rgba(4, 160, 85, 0.3);
+}
+
+.foodcard:hover {
+    border: 2px solid #ff734c;
+}
+
+.type-name > h1{
+    font-weight: 300;
+    text-transform: capitalize;
+}
+
+.foodcard.is-selected {
+    border: 2px solid #0bea4a;
+    background-color: rgba(4, 160, 85, 0.3);
+}

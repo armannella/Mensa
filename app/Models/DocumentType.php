@@ -7,7 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class DocumentType extends Model
 {
     protected $fillable = ['title' , 'description' , 'is_required'];
-    
+
+    protected function casts(): array
+    {
+        return [
+            'is_required' => 'boolean'
+        ];
+    }
     public function documents(){
         return $this->hasMany(Document::class);
     }

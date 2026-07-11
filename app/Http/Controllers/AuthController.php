@@ -30,7 +30,8 @@ class AuthController extends Controller
 
         $user = DB::transaction(function() use ($registerStudentRequest){
             $user = User::create(['name' =>$registerStudentRequest->name , 'username' => $registerStudentRequest->username , 'password' => $registerStudentRequest->password , 'email' => $registerStudentRequest->email , 'role' => UserRole::STUDENT]);
-            $user->student()->create(['name' =>$registerStudentRequest->name , 'codice_fiscale' => $registerStudentRequest->username , 'matricola' => $registerStudentRequest->matricola ]);
+            $student = $user->student()->create(['name' =>$registerStudentRequest->name , 'codice_fiscale' => $registerStudentRequest->username , 'matricola' => $registerStudentRequest->matricola ]);
+            $student->wallet()->create(['balance' => 0]);
             return $user ;
         });
        
@@ -45,14 +46,24 @@ class AuthController extends Controller
     public function registerMensa(RegisterMensaRequest $registerMensaRequest){
 
         DB::transaction(function() use ($registerMensaRequest){
-            $user = User::create(['name' =>$registerMensaRequest->name , 'username' => $registerMensaRequest->username , 'password' => $registerMensaRequest->password , 'email' => $registerMensaRequest->email , 'role' => UserRole::MENSA]);
+            $user = User::create(['name' =>$registerMensaRequest->name , 'username' => $registerMensaRequest->username , 'password' => $registerMensaRequest->password , 'email' => $registerMensaRequest->email , 'role' => UserRole::MENSA->value]);
             $user->Canteen()->create(['name' =>$registerMensaRequest->name , 'address' => $registerMensaRequest->address ]);
         });
         
         return back()->with(['success' => "you registered Mensa Successfully !"]);
     }
 
+    public function showcanteens(){
+        $canteens = Canteen::all();
+        return view('admin.canteens' , compact('canteens'));
+    }
 
+    public function changePassword(Request $request){
+        $request->validate(['password' => ['string' , 'confirmed','min:8']]);
+        $user = Auth::user();
+        $user->update(['password' => $request->password]);
+        return back()->with(['success' => 'you changed the password successfully']); 
+    }
 
     public function showLoginForm(){
         return view('login');

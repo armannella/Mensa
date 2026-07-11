@@ -12,6 +12,14 @@
                     <x-tile href="{{route('student.documents.index')}}" color="bgc-green" icon="bi-person-plus" title="Scholarship" />
                 </div>
 
+                <div class="col-md-4 col-6 mb-3">
+                    <x-tile href="{{route('student.reserves.reserve.canteens')}}" color="bgc-green" icon="bi-person-plus" title="Reserve Meal" />
+                </div>
+
+                <div class="col-md-4 col-6 mb-3">
+                    <x-tile href="{{route('logout')}}" color="bgc-red" icon="bi-person-plus" title="Logout" />
+                </div>
+
                 
                 
             </div>

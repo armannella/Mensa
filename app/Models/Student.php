@@ -22,4 +22,12 @@ class Student extends Model
     public function documents(){
         return $this->hasMany(Document::class);
     }
+
+    public function reserves(){
+        return $this->hasMany(Reserve::class);
+    }
+
+    public function wallet(){
+        return $this->hasOne(Wallet::class);
+    }
 }
