@@ -17,7 +17,11 @@
                                 <td>
                                     <div class="d-flex justify-content-center column-gap-2">
                                         @if ($menu->canBeReserved())
-                                            <a href="{{ route('student.reserves.reserve.menu',[$menu->canteen_id, $menu->id]) }}"> <x-actionbtn color="bgc-pink">Reserve Meal</x-actionbtn> </a>
+                                            <a href="{{ route('student.reserves.reserve.Normalmenu',[$menu->canteen_id, $menu->id]) }}"> <x-actionbtn color="bgc-pink">Reserve Meal</x-actionbtn> </a>
+                                        @endif
+
+                                        @if ($menu->canBeDailyReserved())
+                                            <a href="{{ route('student.reserves.reserve.dailymenu',[$menu->canteen_id, $menu->id]) }}"> <x-actionbtn color="bgc-orange">Daily Reserve Meal</x-actionbtn> </a>
                                         @endif
 
                                     </div>

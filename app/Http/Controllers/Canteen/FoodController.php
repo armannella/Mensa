@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Food;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class FoodController extends Controller
 {
@@ -79,6 +80,9 @@ class FoodController extends Controller
      */
     public function destroy(Food $food)
     {
+        if ($food->image_path && Storage::disk('public')->exists($food->image_path )) {
+                Storage::disk('public')->delete($food->image_path );
+        }
         $food->delete();
         return back()->with('success' , 'you deleted the food successfully');
     }

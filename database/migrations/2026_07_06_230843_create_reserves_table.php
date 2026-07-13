@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('student_id')->constrained()->cascadeOnDelete();
             $table->decimal('price',4,2);
             $table->string('status')->default(ReserveStatus::ACTIVE->value);
+            $table->string('secret_barcode')->nullable();
             $table->timestamps();
         });
     }

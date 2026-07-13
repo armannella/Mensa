@@ -34,6 +34,16 @@ class Menu extends Model
         return $this->hasMany(Reserve::class);
     }
 
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
+    public function aiSummary()
+    {
+        return $this->hasOne(MenuAiSummary::class);
+    }
+
     // 
 
     public function getStartDateTime(): Carbon
@@ -57,6 +67,8 @@ class Menu extends Model
     //
 
     public function canBeReserved(){
+        
+
         $configs = Config::getAll();
         $reserveHour = (int) $configs['reserve_time'];
         $start = $this->getStartDateTime();
@@ -65,6 +77,12 @@ class Menu extends Model
     }
 
     public function canBeDailyReserved(){
+
+        if (env('APP_DEMO_MODE', false)) {
+            return true;
+        }
+
+
         $configs = Config::getAll();
         $reserveMinute = (int) $configs['daily_sale_reserve_time'];
         $start = $this->getStartDateTime();
@@ -74,9 +92,33 @@ class Menu extends Model
     }
 
     public function canBeServed(){
+        if (env('APP_DEMO_MODE', false)) {
+            return true;
+        }
+
+
         $start = $this->getStartDateTime();
         $end = $this->getEndDateTime();
         return now()->isBetween($start , $end);
+    }
+
+    public function canDailySaleDefined(){
+
+        if (env('APP_DEMO_MODE', false)) {
+            return true;
+        }
+
+        $end = $this->getEndDateTime();
+        return now()->isBefore($end);
+    }
+
+    public function canSeeFeedbacks(){
+        if (env('APP_DEMO_MODE', false)) {
+            return true;
+        }
+        
+        $end = $this->getEndDateTime();
+        return now()->isAfter($end);
     }
 
     public function scopeTodayOrFuture($query){

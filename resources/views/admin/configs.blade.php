@@ -39,6 +39,16 @@
                 </div>
             </div>
 
+            <h4 class="text-warning mb-4 border-bottom pb-2 mt-5">Cancellation Settings</h4>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <x-input name="cancel_time" label="Maximum hours before Cancel Reseve" value="{{ $configs['cancel_time']->value ?? '' }}"/>
+                </div>
+                <div class="col-md-6">
+                    <x-input name="cancel_fine" label="CAncellation Fine (%)" value="{{ $configs['cancel_fine']->value ?? '' }}"/>
+                </div>
+            </div>
+
             <div class="text-end mt-4">
                 <x-button type="submit" color="bgc-green">Save Configs</x-button>
             </div>

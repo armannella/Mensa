@@ -44,11 +44,24 @@ class AppServiceProvider extends ServiceProvider
         }) ;
 
          Gate::define('studentAlreadyReservedAnotherCanteen' ,function(User $user ,Menu $menu , Student $student){
-            if($student->reserves()->where('date' , $menu->date)->where('meal' , $menu->meal)->exists()){
+            $hasReserved = $student->reserves()->whereHas('menu', function ($query) use ($menu) {
+                                    $query->where('date', $menu->date)
+                                    ->where('meal', $menu->meal);
+                            })->exists();
+
+            return $hasReserved;
+        }) ;
+
+        Gate::define('isReserveForStudent' ,function(User $user ,Reserve $reserve){
+            if($reserve->student_id == $user->student->id)
                 return true;
-            }
-            
-            return false ;
+            return false;
+        }) ;
+
+        Gate::define('isReserveForCanteen' ,function(User $user ,Reserve $reserve){
+            if($reserve->menu->canteen->id == $user->canteen->id)
+                return true;
+            return false;
         }) ;
 
 

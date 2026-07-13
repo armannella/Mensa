@@ -11,7 +11,7 @@
             <p class="text-white alert alert-danger border-0 rounded-0 my-3" style="font-size: 14px;">{{ $message }}</p>
         @enderror
 
-        <form action="{{ route('student.reserves.reserve.store', [$menu->canteen_id, $menu->id]) }}" method="post" id="reservation-form">
+        <form action="{{ route('student.reserves.reserve.storeDaily', [$menu->canteen_id, $menu->id]) }}" method="post" id="reservation-form">
             @csrf
 
             <div class="foods">
@@ -31,7 +31,7 @@
                                         <x-slot name="footer">
                                             <div class="w-100 border-top border-secondary mt-2">
                                                 <div class="bgc-purple p-2 text-center text-white">
-                                                    Capacity: {{ $food->details->capacity - $food->details->reserved }}
+                                                    Capacity: {{ $food->details->daily_sale_capacity - $food->details->daily_sale_reserved}}
                                                 </div>
                                                 
                                                 <div class="p-2 text-center select-indicator text-white-50 small" style="transition: 0.2s;">

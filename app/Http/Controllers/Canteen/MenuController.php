@@ -9,13 +9,13 @@ use App\Models\Food;
 use App\Models\Menu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rules\Enum;
 
 class MenuController extends Controller
 {
     
-    public function create()
-    {
+    public function create(){
         $categories = Category::all();
         $meals = MealEnum::cases();
         $foods = Food::query()->with('category')->get();
@@ -66,29 +66,89 @@ class MenuController extends Controller
     }
 
     public function showAllMenus(){
-        //show all menus of a specific canteen ;
+        $canteen = Auth::user()->canteen ;
+        $menus = $canteen->menus()->orderBy('date' , 'desc')->paginate(10);
+
+        return view('mensa.allmenus' , compact('menus'));
     }
 
-    public function showStatisticsOfMenu(){
-        //show page how many reserved we had and also define daily sales
+    public function showStatisticsOfMenu(Menu $menu){
+        $canteen = Auth::user()->canteen ;
+        if(!Gate::allows('isMenuForTheCanteen' , [$menu , $canteen])){
+            abort(403 , 'This menu is not for this Canteen');
+        }
+
+        $foods = $menu->foods()->with('category')->get();
+        return view('mensa.statistics' , compact('foods' , 'menu'));
     }
 
-    public function defineDailySaleForFood(){
+    public function defineDailySaleForFood(Request $request, Menu $menu){
 
+        if(!$menu->canDailySaleDefined()){
+            abort(403 , 'The time for daily reserve define is finished');
+        }
+
+        $request->validate([
+            'food_id' => ['required', 'exists:food,id'],
+            'daily_capacity' => ['required', 'integer', 'min:1']
+        ]);
+
+        $menu->foods()->updateExistingPivot($request->food_id, [
+            'daily_sale_capacity' => $request->daily_capacity
+        ]);
+
+        return back()->with('success', 'Daily sale capacity defined successfully.');
     }
 
-    public function showDeliveryPage(){
-        // show the page for serving time
-    }
+    
 
-    public function DelieverReserve(){
-        // storing a barcode and return list of foods and deliever the reserve
-    }
+    public function showFeedbacksOfAMenu(Menu $menu)
+    {
+        if (!Gate::allows('isMenuForTheCanteen', [$menu, Auth::user()->canteen])) {
+            abort(403, 'This menu is not for your Canteen');
+        }
 
-    public function showFeedbacksOfAMenu(){
+        if(!$menu->canSeeFeedbacks()){
+            abort(403, 'This menu is not Started to see Feedbaks yet');
+        }
+
+        $feedbacks = $menu->feedbacks()->with('student.user')->latest()->get();
         
+        $averageRating = round($menu->feedbacks()->avg('rating'), 1) ?? 0;
+        
+        $aiSummary = $menu->aiSummary;
+
+        return view('mensa.feedbacks', compact('menu', 'feedbacks', 'averageRating', 'aiSummary'));
     }
 
+    public function generateAiSummary(Menu $menu)
+    {
+        if (!Gate::allows('isMenuForTheCanteen', [$menu, Auth::user()->canteen])) {
+            abort(403, 'This menu is not for your Canteen');
+        }
+
+        
+        $comments = $menu->feedbacks()->pluck('comment')->toArray();
+
+        if (empty($comments)) {
+            return back()->withErrors(['error' => 'No feedbacks available to analyze.']);
+        }
+
+        
+        $prompt = "Please act as a data analyst. Analyze these student feedbacks for our canteen meal and provide a concise, single-paragraph summary of the pros, cons, and overall sentiment. Feedbacks: " . implode(" | ", $comments);
+
+        //connect to an API of AI
+
+        
+        $summaryText = "AI Analysis: Based on " . count($comments) . " reviews, the overall sentiment is highly positive. Students generally appreciated the food quality and taste. However, a few mentioned that the portion sizes could be slightly improved.";
+
+        $menu->aiSummary()->updateOrCreate(
+            ['menu_id' => $menu->id],
+            ['summary' => $summaryText]
+        );
+
+        return back()->with('success', 'AI Summary generated successfully!');
+    }
 
 
 

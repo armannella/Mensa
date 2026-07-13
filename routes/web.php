@@ -6,13 +6,17 @@ use App\Http\Controllers\Admin\DiscountPlanController;
 use App\Http\Controllers\Admin\DocumentTypeController;
 use App\Http\Controllers\Admin\ScholarshipController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Canteen\DeliveryController;
 use App\Http\Controllers\Canteen\FoodController;
 use App\Http\Controllers\Canteen\MenuController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\DocumentController;
 use App\Http\Controllers\Student\ReserveController;
+use App\Http\Controllers\Student\WalletController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use PSpell\Config;
+use Symfony\Component\HttpKernel\Profiler\Profile;
 
 Route::middleware('guest')->controller(AuthController::class)->group(function(){
     Route::get('/register' , 'showRegisterStudentForm')->name('auth.student.showRegisterForm');
@@ -35,8 +39,27 @@ Route::middleware(['auth' , 'is_student'])->prefix('student')->group(function() 
 
     Route::get('/reserve',[ReserveController::class , 'canteens'])->name('student.reserves.reserve.canteens');
     Route::get('/reserve/{canteen}',[ReserveController::class , 'menus'])->name('student.reserves.reserve.menus');
-    Route::get('/reserve/{canteen}/menus/{menu}',[ReserveController::class , 'showMenu'])->name('student.reserves.reserve.menu');
-    Route::post('/reserve/{canteen}/menus/{menu}',[ReserveController::class , 'store'])->name('student.reserves.reserve.store');
+    Route::get('/reserve/{canteen}/menus/{menu}',[ReserveController::class , 'showNormalMenu'])->name('student.reserves.reserve.Normalmenu');
+    Route::post('/reserve/{canteen}/menus/{menu}',[ReserveController::class , 'storeNormalReserve'])->name('student.reserves.reserve.store');
+    Route::get('/reserve/{canteen}/menus/{menu}/daily',[ReserveController::class , 'showDailyReserveMenu'])->name('student.reserves.reserve.dailymenu');
+    Route::post('/reserve/{canteen}/menus/{menu}/daily',[ReserveController::class , 'storeDailyReserve'])->name('student.reserves.reserve.storeDaily');
+    Route::get('/reserves',[ReserveController::class , 'showAllReserves'])->name('student.reserves.all');
+    Route::get('/reserves/{reserve}',[ReserveController::class , 'showReserveFoods'])->name('student.reserves.details');
+    Route::delete('/reserves/{reserve}',[ReserveController::class , 'cancelReservation'])->name('student.reserves.cancel');
+    Route::get('/reserves/{reserve}/delivere',[ReserveController::class , 'delivereMeal'])->name('student.reserves.delivere');
+
+    Route::get('/reserves/{reserve}/feedback', [ReserveController::class, 'showFeedbackPage'])->name('student.reserves.feedback.show');
+    Route::post('/reserves/{reserve}/feedback', [ReserveController::class, 'storeFeedback'])->name('student.reserves.feedback.store');
+
+    Route::get('/wallet' , [WalletController::class , 'index'])->name('student.wallet.index');
+    Route::post('/wallet/charge' , [WalletController::class , 'chargeWallet'])->name('student.wallet.charge');
+    Route::post('/wallet/post' , [WalletController::class , 'transferMoney'])->name('student.wallet.transfer');
+
+    
+    Route::get('/profile', [ProfileController::class, 'show'])->name('student.profile.show');
+    Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('student.profile.password.update');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('student.profile.avatar.update');
+
 
     });
 
@@ -45,11 +68,18 @@ Route::middleware(['auth' , 'is_mensa'])->prefix('mensa')->group(function() {
 
     Route::get('/foods' , [FoodController::class,'index'])->name('mensa.foods.index');
     Route::post('/foods' , [FoodController::class,'store'])->name('mensa.foods.store');
+    Route::delete('/foods/{food}' , [FoodController::class,'destroy'])->name('mensa.foods.destroy');
 
     Route::get('/menus/add' , [MenuController::class , 'create'])->name('mensa.menus.create');
     Route::post('/menus' , [MenuController::class , 'store'])->name('mensa.menus.store');
+    Route::get('/menus' , [MenuController::class , 'showAllMenus'])->name('mensa.menus.showAll');
+    Route::get('/menus/{menu}' , [MenuController::class , 'showStatisticsOfMenu'])->name('mensa.menus.show');
+    Route::post('/menus/{menu}' , [MenuController::class , 'defineDailySaleForFood'])->name('mensa.menus.storeDaily');
+    Route::get('/menus/{menu}/delivere/{reserve?}' , [DeliveryController::class , 'showDeliveryPage'])->name('mensa.delivery.show');
+    Route::post('/menus/{menu}/delivere' , [DeliveryController::class , 'DelieverReserve'])->name('mensa.delivery.store');
 
-
+    Route::get('/menus/{menu}/feedbacks', [MenuController::class, 'showFeedbacksOfAMenu'])->name('mensa.menus.feedbacks.show');
+    Route::post('/menus/{menu}/feedbacks/generate-ai', [MenuController::class, 'generateAiSummary'])->name('mensa.menus.feedbacks.ai');
 });
 
 Route::middleware(['auth' , 'is_ersu'])->prefix('ersu')->group(function() {
@@ -57,6 +87,8 @@ Route::middleware(['auth' , 'is_ersu'])->prefix('ersu')->group(function() {
 
     Route::get('/mensa' , [AuthController::class , 'showcanteens'])->name('admin.canteens.index');
     Route::post('/mensa' , [AuthController::class , 'registerMensa'])->name('admin.canteens.store');
+    Route::put('/mensa/{canteen}', [ProfileController::class, 'updateCanteen'])->name('admin.canteens.update');
+    Route::put('/mensa/{canteen}/password', [ProfileController::class, 'updatePasswordCanteen'])->name('admin.canteens.password');
 
 
     Route::get('/discounts' , [DiscountPlanController::class , 'index'])->name('admin.discounts.index');

@@ -25,34 +25,22 @@
             </div>
         </div>
 
-        <div class="col-md-7">
-            <div class="row">
-                
-
-                <div>
-                    <x-table :headers="['index','Name', 'Category', 'ingredients', 'Actions']">
-                        @forelse ($foods as $food)
-                            <tr>
-                                <td>{{$loop->iteration}}</td>
-                                <td>{{$food->name}}</td>
-                                <td>{{$food->category->name}}</td>
-                                <td>{{$food->ingredients}}</td>
-                                <td>
-                                    {{-- <div class="d-flex justify-content-center column-gap-2">
-                                    
-                                        <form action="{{ route('', $food->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this food?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <x-actionbtn type="submit" color="bgc-red">Delete</x-actionbtn>
-                                        </form>
-                                    <div> --}}
-                                </td>
-                            </tr>
-                        @empty
-                            <td colspan="4" class="text-center py-4 text-white">No food available yet.</td>
-                        @endforelse
-                    </x-table>
-                </div>
+        <div class="col-md-8">
+            <div class="row foodscards my-3">
+            
+            @foreach($foods as $food)
+                <x-foodcard :food="$food">
+                    <x-slot name="footer">
+                        <button type="button" class="btn btn-success btn-sm w-100 py-2" style="background-color: #198754;">{{ $food->category->name }}</button>
+                        <form action="{{ route('mensa.foods.destroy' , $food->id) }}" method="post">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm w-100 py-2">Delete</button>
+                        </form>
+                    </x-slot>
+                </x-foodcard>
+            @endforeach
+            
             </div>
         </div>
     </div>

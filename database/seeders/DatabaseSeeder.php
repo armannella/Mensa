@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Student;
 use App\Models\User;
+use App\Models\Wallet;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -40,6 +41,10 @@ class DatabaseSeeder extends Seeder
             'user_id' => 2 ,
             'matricola' => '556026' ]
         );
+
+        Wallet::create([
+            'student_id' => 1
+        ]);
 
         $this->call([
             ConfigSeeder::class,

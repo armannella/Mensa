@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('feedbacks', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('student_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('menu_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('reserve_id')->unique()->constrained()->cascadeOnDelete(); 
+            
+            $table->tinyInteger('rating');
+            $table->text('comment');
+            
             $table->timestamps();
         });
     }

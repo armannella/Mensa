@@ -4,8 +4,8 @@ namespace App\Enums;
 
 enum ReserveStatus : string
 {
-    case ACTIVE = 'active';
+    case ACTIVE = 'pending';
     case DELIVERED = 'delivered';
-    case CANCELLED = 'cancelled';
+    
     
 }

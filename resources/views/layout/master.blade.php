@@ -66,7 +66,7 @@
                 </a>
             </div>
             <div>
-                <a href="{{ route('welcome') }}" class="text-white">
+                <a href="https://www.ersumessina.it/" target="blank" class="text-white">
                     <i class="bi bi-box-arrow-in-up-right fs-3"></i>
                 </a>
             </div>

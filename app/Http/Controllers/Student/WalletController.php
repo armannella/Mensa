@@ -36,7 +36,7 @@ class WalletController extends Controller
 
     public function transferMoney(Request $request){
         $request->validate(['amount' => ['required' , 'numeric', 'min:0', 'max:50', 'decimal:0,2'] , 
-                            'matricola'=> ['required' , 'string' , 'exists:students,matricola' , 'not_in:'.Auth::user()->student->matrocla]]);
+                            'matricola'=> ['required' , 'string' , 'exists:students,matricola' , 'not_in:'.Auth::user()->student->matricola]]);
         $sender = Auth::user()->student ;
         $reciever = Student::query()->where('matricola' , $request->matricola)->first();
 

@@ -20,6 +20,8 @@ class ConfigSeeder extends Seeder
             ['key' => 'dinner_end', 'value' => '20:30', 'title' => 'Dinner Time Start' ],
             ['key' => 'reserve_time', 'value' => '12', 'title' => 'Reserve Time (per hour)'],
             ['key' => 'daily_sale_reserve_time', 'value' => '30', 'title' => 'Daily Sale Reserve Time open (per minute)'],
+            ['key' => 'cancel_time', 'value' => '2', 'title' => 'Cancel Time Maximum (per Hour)'],
+            ['key' => 'cancel_fine', 'value' => '50', 'title' => 'Reserve Cancellation Fine (per %)'],
         ];
 
         foreach ($settings as $setting) {   
