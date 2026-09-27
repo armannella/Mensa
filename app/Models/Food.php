@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Food extends Model
 {
-    protected $fillable = ['name' , 'ingredients' , 'image_path'];
+    protected $fillable = ['name' , 'ingredients' , 'image_path' , 'category_id'];
 
     public function category(){
         return $this->belongsTo(Category::class);

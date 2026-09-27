@@ -11,6 +11,7 @@ use App\Models\Food;
 use App\Models\Menu;
 use App\Models\Reserve;
 use App\Models\Student;
+use App\Services\DynamicPricingService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -122,7 +123,7 @@ class ReserveController extends Controller
         return redirect()->route('student.reserves.all')->with('success', 'You successfully reserved for this menu');
     }
 
-    public function showDailyReserveMenu(Canteen $canteen , Menu $menu){
+    public function showDailyReserveMenu(Canteen $canteen , Menu $menu , DynamicPricingService $dynamicPricingService){
 
         if(!Gate::allows('isMenuForTheCanteen' , [$menu , $canteen])){
             abort(403,"this menu is not for this Canteen Bro");
@@ -131,13 +132,21 @@ class ReserveController extends Controller
         if(!$menu->canBeDailyReserved()){
             abort(403,"its not time to daily reserve");
         }
-
+        
         $foods = $menu->foods()->wherePivot('daily_sale_capacity' , '!=' , null)->with('category')->get();
         $categories = Category::all();
+        $foodsPricePerID =[];
+
+        $dynamicPricingService->clearPriceLock($menu);
+        foreach($foods as $food){
+            $food->flash_quote = $dynamicPricingService->FlashSaleDynamicPrice($food , $menu);
+            $foodsPricePerID[$food->id] = $food->flash_quote['price'];
+        }
+        $dynamicPricingService->lockPricesInSession($menu , $foodsPricePerID);
         return view('student.reserve.daily_foods' , compact('foods' , 'categories','menu'));
     }
 
-    public function storeDailyReserve(Canteen $canteen , Menu $menu , Request $request){
+    public function storeDailyReserve(Canteen $canteen , Menu $menu , Request $request , DynamicPricingService $dynamicPricingService){
          $request->validate([
             'foods' => ['required', 'array', 'min:1'],
             'foods.*' => ['required', 'integer', 'exists:food,id']
@@ -165,7 +174,7 @@ class ReserveController extends Controller
         $totalprice = 0;
         $foodsToAttach = [];
 
-        //check prices and capacities
+        // Check prices and capacities
         foreach ($selected_foods as $categoryID => $foodID) {
             $food = $menu->foods()->find($foodID);
             
@@ -173,13 +182,25 @@ class ReserveController extends Controller
                 return back()->withErrors(['error' => 'You chose a food that capacity is finished. Try again.']);
             }
             
+            $lockedPrice = $dynamicPricingService->getLockedPrice($menu, (int) $foodID);
+            
+            if ($lockedPrice === null) {
+                return redirect()->route('student.reserves.reserve.dailymenu', [$canteen->id, $menu->id])
+                    ->withErrors(['error' => 'Your 2-minute price lock has expired! Prices have been updated. Please review and confirm again.']);
+            }
+
+            $liveQuote = $dynamicPricingService->FlashSaleDynamicPrice($food, $menu);
+            $appliedPrice = min($lockedPrice, $liveQuote['price']);
+
             $foodsToAttach[] = $food;
-            $totalprice += $food->category->price;
+            $totalprice += $appliedPrice;
         }
+
+        $dynamicPricingService->clearPriceLock($menu);
 
         // Apply discount
         $off = $student->discountPlan?->percentage ?? 0;
-        $totalprice = $totalprice - ($totalprice * $off / 100);
+        $totalprice = round($totalprice - ($totalprice * $off / 100), 2);
 
         // Check wallet
         if (!$student->wallet->hasEnoughMoney($totalprice)) {

@@ -1,6 +1,6 @@
 @extends('layout.master')
 
-@section('header' , 'Congigs')
+@section('header' , 'Configs')
 
 @section('content')
 <div class="row justify-content-center mt-4">
@@ -35,7 +35,11 @@
                     <x-input name="reserve_time" label="Maximum hours before Reserve" value="{{ $configs['reserve_time']->value ?? '' }}"/>
                 </div>
                 <div class="col-md-6">
-                    <x-input name="daily_sale_reserve_time" label="Daily sale Open Time (minute)" value="{{ $configs['daily_sale_reserve_time']->value ?? '' }}"/>
+                    <x-input name="daily_sale_reserve_time" label="Daily Sale Open Time (minute)" value="{{ $configs['daily_sale_reserve_time']->value ?? '' }}"/>
+                </div>
+
+                <div class="col-md-6">
+                    <x-input name="daily_sale_max_discount" label="Daily Sale Max Discount (per %)" value="{{ $configs['daily_sale_max_discount']->value ?? '' }}"/>
                 </div>
             </div>
 

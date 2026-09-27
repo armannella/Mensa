@@ -22,6 +22,7 @@ class ConfigSeeder extends Seeder
             ['key' => 'daily_sale_reserve_time', 'value' => '30', 'title' => 'Daily Sale Reserve Time open (per minute)'],
             ['key' => 'cancel_time', 'value' => '2', 'title' => 'Cancel Time Maximum (per Hour)'],
             ['key' => 'cancel_fine', 'value' => '50', 'title' => 'Reserve Cancellation Fine (per %)'],
+            ['key' => 'daily_sale_max_discount', 'value' => '50', 'title' => 'Daily Sale Max Discount (per %)'],
         ];
 
         foreach ($settings as $setting) {   

@@ -25,6 +25,7 @@ class ConfigController extends Controller
             
             'reserve_time' => ['required', 'integer', 'min:1', 'max:168'],
             'daily_sale_reserve_time' => ['required', 'integer', 'min:1', 'max:168'],
+            'daily_sale_max_discount' => ['required', 'integer', 'min:0', 'max:100'],
             
             'cancel_time' => ['required', 'integer', 'min:1', 'max:168'],
             'cancel_fine' => ['required', 'integer', 'min:0', 'max:100'],

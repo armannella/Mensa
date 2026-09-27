@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Menu extends Model
 {
-    protected $fillable = ['date' , 'meal'];
+    protected $fillable = ['date' , 'meal', 'canteen_id'];
 
     protected function casts(): array
     {
@@ -81,13 +81,9 @@ class Menu extends Model
         if (env('APP_DEMO_MODE', false)) {
             return true;
         }
-
-
-        $configs = Config::getAll();
-        $reserveMinute = (int) $configs['daily_sale_reserve_time'];
-        $start = $this->getStartDateTime();
-        $end = $this->getEndDateTime();
-        $processStart = $start->copy()->subMinutes($reserveMinute);
+        $processStart = $this->getDailySaleStartTime();
+        $end = $this->getDailySaleEndTime();
+        
         return now()->isBetween($processStart , $end);
     }
 
@@ -121,6 +117,18 @@ class Menu extends Model
         return now()->isAfter($end);
     }
 
+    public function getDailySaleStartTime(){
+        $configs = Config::getAll();
+        $minsBeforeStart = (int) $configs['daily_sale_reserve_time'];
+        $start = $this->getStartDateTime();
+        $processStart = $start->copy()->subMinutes($minsBeforeStart);
+        return $processStart;
+    }
+
+    public function getDailySaleEndTime(){
+        $end = $this->getEndDateTime();
+        return $end;
+    }
     public function scopeTodayOrFuture($query){
         return $query->where('date','>=' , now()->toDateString());
     }
