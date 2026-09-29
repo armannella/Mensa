@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Wallet extends Model
 {
+    use HasFactory;
     protected $fillable = ['balance', 'student_id'];
     
     protected function casts(): array

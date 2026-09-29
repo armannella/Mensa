@@ -4,10 +4,13 @@ namespace App\Models;
 
 use App\Enums\ReserveStatus;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Reserve extends Model
 {
+    use HasFactory;
+    
     protected $fillable = ['menu_id' , 'student_id' , 'price','status' , 'secret_barcode'];
 
     protected function casts(): array

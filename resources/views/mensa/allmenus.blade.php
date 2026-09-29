@@ -20,10 +20,10 @@
                     <td><span class="badge bg-secondary">{{ ucfirst($menu->meal->value) }}</span></td>
                     
                     <td>
-                        @if($menu->date->isPast())
-                            <span class="badge bg-danger">Finished</span>
-                        @elseif($menu->date->isToday())
+                        @if($menu->date->isToday())
                             <span class="badge bg-success">Today</span>
+                        @elseif($menu->date->isPast())
+                            <span class="badge bg-danger">Finished</span>
                         @else
                             <span class="badge bg-info text-dark">Upcoming</span>
                         @endif

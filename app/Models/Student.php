@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model
 {
+    use HasFactory;
     protected $fillable = ['user_id' , 'name' , 'codice_fiscale' , 'matricola' , 'discount_plan_id'];
     public function user(){
         return $this->belongsTo(User::class);

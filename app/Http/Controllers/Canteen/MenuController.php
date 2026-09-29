@@ -10,6 +10,7 @@ use App\Models\Menu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rules\Enum;
 
 class MenuController extends Controller
@@ -121,26 +122,39 @@ class MenuController extends Controller
         return view('mensa.feedbacks', compact('menu', 'feedbacks', 'averageRating', 'aiSummary'));
     }
 
-    public function generateAiSummary(Menu $menu)
-    {
+    public function generateAiSummary(Menu $menu){
+
         if (!Gate::allows('isMenuForTheCanteen', [$menu, Auth::user()->canteen])) {
             abort(403, 'This menu is not for your Canteen');
         }
 
-        
         $comments = $menu->feedbacks()->pluck('comment')->toArray();
 
         if (empty($comments)) {
             return back()->withErrors(['error' => 'No feedbacks available to analyze.']);
         }
 
-        
         $prompt = "Please act as a data analyst. Analyze these student feedbacks for our canteen meal and provide a concise, single-paragraph summary of the pros, cons, and overall sentiment. Feedbacks: " . implode(" | ", $comments);
 
-        //connect to an API of AI
+        try {
+            $response = Http::withoutVerifying()->timeout(8)->post('https://text.pollinations.ai/', [
+                'messages' => [
+                    ['role' => 'system', 'content' => 'You are a helpful university canteen data analyst. Keep summaries under 80 words.'],
+                    ['role' => 'user', 'content' => $prompt]
+                ],
+                'model' => 'openai',
+            ]);
 
-        
-        $summaryText = "AI Analysis: Based on " . count($comments) . " reviews, the overall sentiment is highly positive. Students generally appreciated the food quality and taste. However, a few mentioned that the portion sizes could be slightly improved.";
+            if ($response->successful() && !empty(trim($response->body()))) {
+                $summaryText = trim($response->body());
+            } else {
+                throw new \Exception('AI service returned empty response');
+            }
+        } catch (\Exception $e) {
+            $avgRating = round($menu->feedbacks()->avg('rating'), 1);
+            $summaryText = "AI Analysis: Based on " . count($comments) . " reviews (Avg Rating: {$avgRating}/5), students shared mixed-to-positive feedback regarding food quality and portion sizes.";
+            return back()->withErrors(['error' => 'AI API Connection Failed: ' . $e->getMessage()]);
+        }
 
         $menu->aiSummary()->updateOrCreate(
             ['menu_id' => $menu->id],
