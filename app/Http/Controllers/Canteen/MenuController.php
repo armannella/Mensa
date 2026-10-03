@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Food;
 use App\Models\Menu;
+use App\Services\DemandForecastService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -31,39 +33,41 @@ class MenuController extends Controller
         $request->validate([
             'date' => ['required', 'date' , 'after:today'],
             'meal' => ['required', new Enum(MealEnum::class)],
-            'foods' => ['required' , 'array' , 'min:1'] ,
-            'foods.*' => ['array' ] ,
-            'foods.*.quantity' => ['nullable','integer']
+            'foods' => ['required' , 'array'] ,
+            'foods.*' => ['array'] ,
+            'foods.*.quantity' => ['nullable', 'integer', 'min:1']
         ]);
+
+        $selectedFoods = array_filter($request->foods, function($details) {
+            return !empty($details['quantity']) && $details['quantity'] > 0;
+        });
+
+        if (empty($selectedFoods)) {
+            return back()->withErrors(['error' => 'You must set a quantity for at least one food to create a menu!']);
+        }
 
         $canteen = Auth::user()->canteen;
 
-        //check there is not any menu for that time
-        $check_menu = Menu::query()->where('meal' , $request->meal)->where('date' , $request->date)->where('canteen_id',$canteen->id)->exists();
+        $check_menu = Menu::query()
+            ->where('meal' , $request->meal)
+            ->where('date' , $request->date)
+            ->where('canteen_id', $canteen->id)
+            ->exists();
+            
         if($check_menu){
-            return back()->withErrors(['date' => 'there exist a menu for this day']);
+            return back()->withErrors(['error' => 'There already exists a menu for this day in your canteen.']);
         }
         
-        // create menu :
-
         $menu = $canteen->menus()->create([
             'date' => $request->date ,
             'meal' => $request->meal
         ]);
 
-        //create menu Details :
-
-        foreach($request->foods as $foodID => $details){
-            $quantity= $details['quantity'];
-            if(!empty($quantity) && $quantity>0){
-                $menu->foods()->attach($foodID , ['capacity' => $quantity]);
-            }
+        foreach($selectedFoods as $foodID => $details){
+            $menu->foods()->attach($foodID , ['capacity' => $details['quantity']]);
         }
 
-        //return back :
-
-        return back()->with('success' , "added Menu Successfully for date {$menu->date} meal : {$menu->meal->value}");
-
+        return back()->with('success' , "Added Menu Successfully for date {$menu->date->format('Y-m-d')} meal : {$menu->meal->value}");
     }
 
     public function showAllMenus(){
@@ -162,6 +166,30 @@ class MenuController extends Controller
         );
 
         return back()->with('success', 'AI Summary generated successfully!');
+    }
+
+    public function predictFoodCapacity(Request $request, DemandForecastService $forecastService)
+    {
+        $request->validate([
+            'date' => ['required', 'date'],
+            'meal' => ['required', new Enum(MealEnum::class)],
+        ]);
+        
+        $date = Carbon::parse($request->date);
+        $mealEnum = MealEnum::tryFrom($request->meal);
+        $predictions = [];
+        $foods = Food::all();
+        foreach ($foods as $food) {
+            if ($food) {
+                $prediction = $forecastService->predictCapacity($food, $date, $mealEnum);
+                $predictions[$food->id] = [
+                    'capacity' => $prediction['predicted_capacity'],
+                    'info' => $prediction['info']
+                ];
+            }
+        }
+
+        return response()->json($predictions);
     }
 
 

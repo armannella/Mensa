@@ -73,6 +73,7 @@ Route::middleware(['auth' , 'is_mensa'])->prefix('mensa')->group(function() {
     Route::get('/menus/add' , [MenuController::class , 'create'])->name('mensa.menus.create');
     Route::post('/menus' , [MenuController::class , 'store'])->name('mensa.menus.store');
     Route::get('/menus' , [MenuController::class , 'showAllMenus'])->name('mensa.menus.showAll');
+    Route::post('/menus/predict-capacity', [MenuController::class, 'predictFoodCapacity'])->name('mensa.menus.predictCapacity');
     Route::get('/menus/{menu}' , [MenuController::class , 'showStatisticsOfMenu'])->name('mensa.menus.show');
     Route::post('/menus/{menu}' , [MenuController::class , 'defineDailySaleForFood'])->name('mensa.menus.storeDaily');
     Route::get('/menus/{menu}/delivere/{reserve?}' , [DeliveryController::class , 'showDeliveryPage'])->name('mensa.delivery.show');

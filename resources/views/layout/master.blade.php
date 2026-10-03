@@ -51,7 +51,7 @@
 
     <footer class="footer d-flex justify-content-between">
         <div>
-            <span class="fs-5">Version 1.00</span>
+            <span class="fs-5">Version 1.20</span>
         </div>
         <div class="d-flex justify-content-between column-gap-5">
             <div>
@@ -66,9 +66,17 @@
                 </a>
             </div>
             <div>
-                <a href="https://www.ersumessina.it/" target="blank" class="text-white">
-                    <i class="bi bi-box-arrow-in-up-right fs-3"></i>
-                </a>
+                @auth
+                    <a href="{{ route('logout') }}" class="text-white">
+                        <i class="bi bi-box-arrow-in-up-right fs-3"></i>
+                    </a>    
+                @endauth
+                @guest
+                    <a href="https://www.ersumessina.it/" target="blank" class="text-white">
+                        <i class="bi bi-box-arrow-in-up-right fs-3"></i>
+                    </a>
+                @endguest
+                
             </div>
             
         </div>
