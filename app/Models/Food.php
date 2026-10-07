@@ -26,4 +26,8 @@ class Food extends Model
     public function reserves(){
         return $this->belongsToMany(Reserve::class , 'reserve_detail')->withTimestamps();
     }
+
+    public function waitLists(){
+        return $this->hasMany(WaitList::class);
+    }
 }

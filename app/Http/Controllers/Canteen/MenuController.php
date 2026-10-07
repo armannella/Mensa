@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Canteen;
 
 use App\Enums\MealEnum;
+use App\Events\FoodCapacityFreedUp;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Food;
@@ -97,10 +98,14 @@ class MenuController extends Controller
             'food_id' => ['required', 'exists:food,id'],
             'daily_capacity' => ['required', 'integer', 'min:1']
         ]);
-
+        $foodItem = $menu->foods()->find($request->food_id);
         $menu->foods()->updateExistingPivot($request->food_id, [
-            'daily_sale_capacity' => $request->daily_capacity
+            'daily_sale_capacity' => $request->daily_capacity ,
+            'daily_sale_reserved' => $foodItem->details->daily_sale_reserved ?? 0, 
         ]);
+        $food = Food::find($request->food_id);
+        
+        event(new FoodCapacityFreedUp($food, $menu , $request->daily_capacity , true));
 
         return back()->with('success', 'Daily sale capacity defined successfully.');
     }

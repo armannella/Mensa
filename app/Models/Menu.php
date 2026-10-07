@@ -47,6 +47,10 @@ class Menu extends Model
         return $this->hasOne(MenuAiSummary::class);
     }
 
+    public function waitLists(){
+        return $this->hasMany(WaitList::class);
+    }
+
     // 
 
     public function getStartDateTime(): Carbon

@@ -19,15 +19,7 @@
                 <h1 class="page-title m-0">@yield('header')</h1>
             </div>
 
-            <div class="col-md-4 d-flex justify-content-end column-gap-3">
-                <div class="leftprofile d-flex flex-column justify-content-center">
-                    <h4 class="profile-title">{{ Auth::user()->name ?? "Mensa Simulation Project"}}</h4>
-                    <h4 class="profile-desc">{{Auth::user()->role->value ?? "made By Arman Khademi"}}</h4>
-                </div>
-                <div class="rightprofile d-flex flex-column justify-content-center">
-                        <img src="{{ asset("/storage/". (Auth::user()->image_path ?? 'profile-avatars/siteprofile.jpg')) }}" alt="Logo" width="60px" height="60px" style="object-fit: cover;" >
-                </div>
-            </div>
+            @include('partials.notifications')
         </div>
 
         <div class="row text-md-start text-start mt-3 mt-md-0">

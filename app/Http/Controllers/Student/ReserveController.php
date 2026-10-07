@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Student;
 
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
+use App\Events\FoodCapacityFreedUp;
 use App\Http\Controllers\Controller;
 use App\Models\Canteen;
 use App\Models\Category;
@@ -273,6 +274,9 @@ class ReserveController extends Controller
                 $menuFood = $menu->foods()->find($food->id);
                 
                 if ($menuFood) {
+                    if($menuFood->details->isCapacityFinished()){
+                        event(new FoodCapacityFreedUp($food , $menu , 1 , false));
+                    }
                     $menu->foods()->updateExistingPivot($food->id, [
                         'reserved' => max(0, $menuFood->details->reserved - 1)
                     ]);
@@ -286,7 +290,7 @@ class ReserveController extends Controller
             $student->wallet->balance += $refund;
             $student->wallet->save();
         });
-
+        
         return redirect()->route('student.reserves.all')->with('success', 'You successfully cancelled the reservation');
 
 
@@ -306,8 +310,8 @@ class ReserveController extends Controller
         return view('student.reserve.viewreserve' , compact('foods' , 'categories' , 'reserve'));
     }
 
-    public function showFeedbackPage(Reserve $reserve)
-    {
+    public function showFeedbackPage(Reserve $reserve){
+
         if (!Gate::allows('isReserveForStudent', $reserve)) {
             abort(403, 'This reserve is not for you!');
         }
@@ -327,8 +331,7 @@ class ReserveController extends Controller
         return view('student.reserve.feedback', compact('reserve'));
     }
 
-    public function storeFeedback(Request $request, Reserve $reserve)
-    {
+    public function storeFeedback(Request $request, Reserve $reserve){
         $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
             'comment' => ['required', 'string', 'min:3', 'max:500']

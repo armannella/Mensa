@@ -16,7 +16,7 @@
         </div>
 
         @error('error')
-            <p class="text-white alert alert-danger border-0 rounded-0 my-3" style="font-size: 14px;">{{ $message }}</p>
+            <p class="alert alert-danger border-0 rounded-0 my-3" style="font-size: 14px;">{{ $message }}</p>
         @enderror
 
         <form action="{{ route('student.reserves.reserve.storeDaily', [$menu->canteen_id, $menu->id]) }}" method="post" id="reservation-form">

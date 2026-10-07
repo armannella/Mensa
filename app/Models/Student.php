@@ -37,4 +37,9 @@ class Student extends Model
     {
         return $this->hasMany(Feedback::class);
     }
+
+    public function waitLists(){
+        return $this->hasMany(WaitList::class);
+    }
+    
 }

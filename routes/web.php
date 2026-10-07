@@ -9,9 +9,11 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Canteen\DeliveryController;
 use App\Http\Controllers\Canteen\FoodController;
 use App\Http\Controllers\Canteen\MenuController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\DocumentController;
 use App\Http\Controllers\Student\ReserveController;
+use App\Http\Controllers\Student\WaitListController;
 use App\Http\Controllers\Student\WalletController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +28,11 @@ Route::middleware('guest')->controller(AuthController::class)->group(function(){
 });
 
 Route::get('/logout',[AuthController::class , 'logout'])->name('logout')->middleware('auth');
+
+Route::middleware('auth')->controller(NotificationController::class)->group(function () {
+    Route::post('/notifications/mark-all-read', 'markAllAsRead')->name('notifications.markAllRead');
+    Route::post('/notifications/{id}/mark-read', 'markAsRead')->name('notifications.markRead');
+});
 
 Route::middleware(['auth' , 'is_student'])->prefix('student')->group(function() {
     Route::get('/' , [AuthController::class , 'studentDashboard'])->name('student.dashboard');
@@ -47,6 +54,10 @@ Route::middleware(['auth' , 'is_student'])->prefix('student')->group(function() 
     Route::get('/reserves/{reserve}',[ReserveController::class , 'showReserveFoods'])->name('student.reserves.details');
     Route::delete('/reserves/{reserve}',[ReserveController::class , 'cancelReservation'])->name('student.reserves.cancel');
     Route::get('/reserves/{reserve}/delivere',[ReserveController::class , 'delivereMeal'])->name('student.reserves.delivere');
+
+    Route::get('/reserve/{canteen}/menus/{menu}/{food}/waitlist',[WaitListController::class , 'addToWaitList'])->name('student.waitlist.add');
+    Route::get('/reserve/{canteen}/menus/{menu}/{food}/waitlist/{waitList}',[WaitListController::class , 'removeWaitList'])->name('student.waitlist.remove');
+
 
     Route::get('/reserves/{reserve}/feedback', [ReserveController::class, 'showFeedbackPage'])->name('student.reserves.feedback.show');
     Route::post('/reserves/{reserve}/feedback', [ReserveController::class, 'storeFeedback'])->name('student.reserves.feedback.store');
