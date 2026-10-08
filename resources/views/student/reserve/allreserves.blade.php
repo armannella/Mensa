@@ -23,9 +23,14 @@
                     <td>
                         @if($reserve->status->value === 'delivered')
                             <span class="badge bg-success">Delivered</span>
+                        @elseif ($reserve->status->value === 'missed')
+                            <span class="badge bg-danger">Missed</span>
                         @else
-                            <span class="badge bg-warning text-dark">pending</span>
+                            <span class="badge bg-warning text-dark">Upcoming</span>
                         @endif
+
+
+                        
                     </td>
                     <td>{{ $reserve->created_at}}</td>
                     <td>

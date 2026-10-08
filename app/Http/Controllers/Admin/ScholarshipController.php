@@ -57,7 +57,7 @@ class ScholarshipController extends Controller
         $request->validate(['note' => ['nullable' , 'string' , 'max:250']]);
         $scholarshipApplication->update(['status' => ScholarshipStatus::REJECTED->value , 'admin_note'=> $request->note]);
 
-        $student->user->notify(new ScholarshipAssignNotification($scholarshipApplication , ScholarshipStatus::REJECTED));
+        $scholarshipApplication->student->user->notify(new ScholarshipAssignNotification($scholarshipApplication , ScholarshipStatus::REJECTED));
         return back()->with(['success' => 'you rejected successfully']);
     }
 

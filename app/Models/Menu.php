@@ -11,13 +11,14 @@ class Menu extends Model
 {
     use HasFactory;
     
-    protected $fillable = ['date' , 'meal', 'canteen_id'];
+    protected $fillable = ['date' , 'meal', 'canteen_id' , 'is_processed'];
 
     protected function casts(): array
     {
         return [
             'meal' => MealEnum::class,
             'date' => 'date',
+            'is_processed' => 'boolean', 
         ];
     }
 
@@ -138,6 +139,11 @@ class Menu extends Model
     }
     public function scopeTodayOrFuture($query){
         return $query->where('date','>=' , now()->toDateString());
+    }
+
+    public function isFinished(){
+        $end = $this->getEndDateTime();
+        return now()->isAfter($end);
     }
     
     
