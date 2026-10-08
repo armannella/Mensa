@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DiscountPlan;
 use App\Models\Document;
 use App\Models\ScholarshipApplication;
+use App\Notifications\ScholarshipAssignNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -48,12 +49,15 @@ class ScholarshipController extends Controller
             $scholarshipApplication->update(['status' => ScholarshipStatus::APPROVED->value]);
             $student->update(['discount_plan_id'=>$request->discount_plan_id]);
         });
+        $student->user->notify(new ScholarshipAssignNotification($scholarshipApplication , ScholarshipStatus::APPROVED));
         return back()->with(['success' => 'you approved successfully']);
     }
 
     public function rejectScholarship(Request $request , ScholarshipApplication $scholarshipApplication){
         $request->validate(['note' => ['nullable' , 'string' , 'max:250']]);
         $scholarshipApplication->update(['status' => ScholarshipStatus::REJECTED->value , 'admin_note'=> $request->note]);
+
+        $student->user->notify(new ScholarshipAssignNotification($scholarshipApplication , ScholarshipStatus::REJECTED));
         return back()->with(['success' => 'you rejected successfully']);
     }
 

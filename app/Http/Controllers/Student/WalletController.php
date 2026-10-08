@@ -6,6 +6,7 @@ use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
+use App\Notifications\TransferCreditNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -52,6 +53,8 @@ class WalletController extends Controller
                 $reciever->wallet->save();
                 $reciever->wallet->transactions()->create(['type' => TransactionType::INCOME , 'amount' => $request->amount , 'status' => TransactionStatus::SUCCESS , 'note' => 'You recieved money from a student' , 'ref_id' => $sender->matricola]);
         });
+
+        $reciever->user->notify(new TransferCreditNotification($sender , $reciever ,$request->amount ));
 
         return back()->with('success' , 'you transfered money Successfully');
     }
