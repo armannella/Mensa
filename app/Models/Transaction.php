@@ -16,7 +16,7 @@ class Transaction extends Model
         return [
             'type' => TransactionType::class,
             'status' => TransactionStatus::class,
-            'price' => 'decimal:2'
+            'amount' => 'decimal:2'
         ];
     }
 
