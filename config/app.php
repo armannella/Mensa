@@ -97,6 +97,8 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
+    'ledger_key' => env('LEDGER_HMAC_KEY'),
+
     'key' => env('APP_KEY'),
 
     'previous_keys' => [
