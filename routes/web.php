@@ -64,12 +64,17 @@ Route::middleware(['auth' , 'is_student'])->prefix('student')->group(function() 
 
     Route::get('/wallet' , [WalletController::class , 'index'])->name('student.wallet.index');
     Route::post('/wallet/charge' , [WalletController::class , 'chargeWallet'])->name('student.wallet.charge');
-    Route::post('/wallet/post' , [WalletController::class , 'transferMoney'])->name('student.wallet.transfer');
+    Route::post('/wallet/post', [WalletController::class, 'transferMoney'])->name('student.wallet.transfer')->middleware('throttle:5,1');
+    Route::get('/wallet/transfer/confirm', [WalletController::class, 'showConfirm'])->name('student.wallet.transfer.confirm');
+    Route::post('/wallet/transfer/confirm', [WalletController::class, 'confirmTransfer'])->name('student.wallet.transfer.verify')->middleware('throttle:10,1');
 
+    
     
     Route::get('/profile', [ProfileController::class, 'show'])->name('student.profile.show');
     Route::post('/profile/password', [ProfileController::class, 'updatePassword'])->name('student.profile.password.update');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('student.profile.avatar.update');
+    Route::post('/profile/telegram', [ProfileController::class, 'createTelegramCode'])->name('student.profile.telegram.link');
+    Route::post('/profile/telegram/unlink', [ProfileController::class, 'unlinkTelegram'])->name('student.profile.telegram.unlink');
 
 
     });

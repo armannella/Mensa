@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
+
 
 class ProfileController extends Controller
 {
@@ -100,5 +102,23 @@ class ProfileController extends Controller
         ]);
 
         return back()->with('success', 'Canteen password updated successfully!');
+    }
+
+
+    public function createTelegramCode()
+    {
+        $code = Str::random(10);
+        Auth::user()->forceFill([
+            'telegram_link_code' => $code,
+            'telegram_link_expires_at' => now()->addMinutes(10),
+        ])->save();
+
+        return back()->with('telegram_code', $code);
+    }
+
+    public function unlinkTelegram()
+    {
+        Auth::user()->forceFill(['telegram_chat_id' => null])->save();
+        return back()->with('success', 'Telegram unlinked.');
     }
 }

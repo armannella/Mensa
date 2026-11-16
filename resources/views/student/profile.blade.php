@@ -84,6 +84,31 @@
                         </form>
                     </div>
                 </div>
+
+
+                <div class="card bg-dark border-secondary shadow-sm mt-4">
+                    <div class="card-header bgc-blue text-white"><h6 class="m-0">Telegram Account</h6></div>
+                    <div class="card-body p-4">
+                        @if ($user->telegram_chat_id)
+                            <h1 class="text-success">Telegram is linked.</h1>
+                            <form action="{{ route('student.profile.telegram.unlink') }}" method="POST">
+                                @csrf
+                                <x-button color="bgc-red">Unlink</x-button>
+                            </form>
+                        @elseif (session('telegram_code'))
+                            <p class="text-white">Open the link, press Start, then refresh this page.</p>
+                            <a class="btn btn-info" target="_blank"
+                            href="https://t.me/{{ config('services.telegram.username') }}?start={{ session('telegram_code') }}">Open Telegram</a>
+                            <p class="text-white-50 small mt-2">Valid for 10 minutes.</p>
+                        @else
+                            <form action="{{ route('student.profile.telegram.link') }}" method="POST">
+                                @csrf
+                                <span class="text-white">Any account is not connected yet</span>
+                                <x-button color="bgc-green">Link Telegram</x-button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
             </div>
 
         </div>
