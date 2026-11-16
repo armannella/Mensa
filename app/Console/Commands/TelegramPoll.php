@@ -6,6 +6,7 @@ use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use App\Models\User;
+use App\Notifications\TelegramLinkedNotification;
 use App\Services\TelegramService;
 use Illuminate\Support\Facades\Cache;
 
@@ -51,7 +52,7 @@ class TelegramPoll extends Command
                     'telegram_link_code' => null,
                     'telegram_link_expires_at' => null,
                 ])->save();
-
+                $user->notify(new TelegramLinkedNotification());
                 $telegram->send($chatId, 'Your account is linked. You will get transfer codes here.');
                 $this->info("Linked user #{$user->id}");
             }

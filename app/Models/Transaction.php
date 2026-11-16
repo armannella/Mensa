@@ -50,7 +50,7 @@ class Transaction extends Model
             $t->type->value,
             number_format((float) $t->amount, 2, '.', ''),
             $t->status->value,
-            $t->ref_id ?? '',
+            (string) ($t->ref_id ?? ''),
             $t->note ?? '',
             $t->created_at->format('Y-m-d H:i:s'),
             $prevHash,
